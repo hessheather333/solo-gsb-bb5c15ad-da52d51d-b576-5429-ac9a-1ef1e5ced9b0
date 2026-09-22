@@ -1,0 +1,22 @@
+services:
+  traceability-api:
+    build: .
+    image: metrology-traceability-api:1.0
+    container_name: metrology-traceability-api
+    ports:
+      - "8000:8000"
+    environment:
+      DATABASE_URL: sqlite:////data/traceability.db
+      # 首次启动自动写入演示数据（覆盖唯一链/多链/断裂/死端/篡改/不确定度冲突）
+      SEED_DEMO: "true"
+    volumes:
+      - trace-data:/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health')"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+volumes:
+  trace-data:
